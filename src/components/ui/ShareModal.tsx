@@ -49,12 +49,12 @@ import { X, Share2, Brain, Users, Copy } from "lucide-react";
 import { closeShare, type StoreInterface} from "../../store";
 import { useDispatch, useSelector} from "react-redux";
 import type { RootState } from "../../store/store";
-import data from '../../db/index';
+
 
 export default function ShareModal() {
   const dispatch = useDispatch();
   const isOpen = useSelector((state: RootState) => state.modal.isShareOpen);
-  
+  const data=useSelector((state:RootState)=> state.modal.allContentData)
   if (!isOpen) return null;
   
   const handleCopyLink = () => {
@@ -66,7 +66,7 @@ export default function ShareModal() {
     <div className="fixed inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm z-50 p-4">
       <div className="bg-white rounded-3xl shadow-2xl max-w-lg w-full relative overflow-hidden animate-in fade-in-0 zoom-in-95 duration-300">
         
-        {/* Header with gradient background */}
+
         <div className="bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 px-8 pt-8 pb-6 text-white relative">
           <button 
             onClick={() => dispatch(closeShare())}
@@ -86,11 +86,11 @@ export default function ShareModal() {
           </div>
         </div>
         
-        {/* Content */}
+
         <div className="px-8 py-6">
           <div className="space-y-6">
             
-            {/* Description */}
+
             <div className="text-center">
               <p className="text-gray-600 leading-relaxed">
                 Share your entire collection of curated content with the world. 
@@ -99,7 +99,7 @@ export default function ShareModal() {
               </p>
             </div>
             
-            {/* Stats */}
+   
             <div className="grid grid-cols-3 gap-4 py-4">
               <div className="text-center p-4 bg-blue-50 rounded-2xl">
                 <div className="text-2xl font-bold text-blue-600">{data.length}</div>
@@ -152,7 +152,7 @@ export default function ShareModal() {
           </div>
         </div>
         
-        {/* Footer */}
+
         <div className="px-8 pb-6">
           <div className="text-center">
             <p className="text-xs text-gray-500">

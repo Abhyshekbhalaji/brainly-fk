@@ -254,7 +254,7 @@ const NoteCard: React.FC<NoteCardProps> = ({
   title,
   link,
   tags,
-  createdDate,
+  createdDate=Date.now(),
   contentType = 'text',
   onDelete,
   onShare
@@ -271,8 +271,10 @@ const NoteCard: React.FC<NoteCardProps> = ({
   const actualContentType = (link && contentType === 'text') ? detectContentType(link) : contentType
 
   // Helpers
-  const formatDate = (date: Date): string =>
-    date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+const formatDate = (date: string | Date): string => {
+  const d = typeof date === "string" ? new Date(date) : date;
+  return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+}
 
   const handleClick = (url: string | null) => url && window.open(url, '_blank')
 
@@ -360,7 +362,7 @@ const NoteCard: React.FC<NoteCardProps> = ({
 
   return (
     <div
-      className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm 
+      className="bg-gray-100 rounded-xl border border-gray-200 p-6 shadow-sm 
                  hover:shadow-lg hover:scale-[1.01] transition-all duration-200"
     >
 
@@ -397,11 +399,11 @@ const NoteCard: React.FC<NoteCardProps> = ({
         <div className="flex flex-wrap gap-2 mt-3">
           {tags.map((tag, i) => (
             <span
-              key={i}
+              key={tag._id}
               className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs font-medium 
                          rounded-full hover:bg-blue-200 hover:text-blue-600 transition"
             >
-              #{tag}
+              #{tag.title}
             </span>
           ))}
         </div>

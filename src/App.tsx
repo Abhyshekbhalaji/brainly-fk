@@ -1,49 +1,47 @@
-
-import  { useState } from 'react';
+import React from 'react';
 import {Toaster} from 'react-hot-toast'
 import './App.css';
 import { Provider } from 'react-redux';
-import Content from './components/ui/Content';
-import Sidebar from './components/ui/Sidebar';
+import {BrowserRouter,Routes,Route, Navigate} from 'react-router-dom';
+
+import AuthForm from './components/ui/AuthForm';
 import { store } from './store/store';
-import ShareModal from './components/ui/ShareModal';
-import FormModal from './components/ui/FormModal';
+import Home from './components/ui/Home';
+import ErrorPage from './components/ui/ErrorPage';
 function App() {
-  const [tags,setTags]=useState("All");
+  const token =localStorage.getItem("token");
   return (
-    <Provider store={store}>
-   <Toaster toastOptions={{
+
+    <React.StrictMode>
+      <Provider store={store}>
+      <Toaster toastOptions={{
     success: {
       style: {
-        background: 'green',
+        background: '#66BB6A',
+        fontWeight:"bold",
+        color:"white"
       },
     },
     error: {
       style: {
         background: '#f56565',
-        fontWeight:'bold'
+        fontWeight:'bold',
+        color:"white"
       },
 
     },
   }}/>
-    <div className=' h-screen grid grid-cols-12 grid-row-4 ' >
-      <div className='h-screen col-span-3'>
-        <Sidebar setTag={setTags} tag={tags}/>
-      </div>
-      <div className=' h-screen bg-yellow-200 col-span-9 '>
-      <Content tag={tags}/>
-        
-      </div>
-
-    </div>
-    <div>
-        
-      <ShareModal/>
-      <FormModal/>
-      </div> 
-
-     
+   <BrowserRouter> 
+   <Routes>
+ <Route path="/" element={token? <Navigate to="/home" /> :<AuthForm />}/> 
+  <Route path="/home" element={token? <Home/>:<Navigate to='/'/>}/> 
+  <Route path="*" element={<ErrorPage/>}/> 
+  </Routes>
+   
+   </BrowserRouter>
     </Provider>
+    </React.StrictMode>
+    
     
   )
 }

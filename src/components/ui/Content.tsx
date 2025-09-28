@@ -1,28 +1,19 @@
-
+import axios from 'axios'
 import Header from './Header'
 import NoteCard from './NoteCard'
-import Data from '../../db/index.ts'
+
 
 interface ChildComponentProps{
   tag : string
 }
+import SmallShareModal from './SmallShare.tsx'
 import { type dbItem } from '../../db/index.ts'
 import { useEffect, useState } from 'react'
+import fetchData, { filterByTag } from '../../utils/api.ts'
+import toast from 'react-hot-toast'
+import { useSelector, useDispatch } from 'react-redux';
+import { type StoreInterface, setAllContentData, updateContent } from '../../store/index.ts'; // Added refreshContent
 
-/* 
-interface NoteCardProps {
-  title: string
-  content: string
-  tags: string[]
-  createdDate: string
-  contentType?: 'text' | 'youtube' | 'twitter' | 'link'
-  onDelete?: () => void
-  onShare?: () => void
-}
-
-
-
-*/
 type DbContentType = "video" | "document" | "tweet" | "link";
 type NoteCardContentType = "text" | "youtube" | "twitter" | "link";
 
@@ -40,99 +31,128 @@ const mapContentType = (dbType: DbContentType): NoteCardContentType => {
             return "text";
     }
 }
-const Content = ({tag}:ChildComponentProps) => {
-    const [content,setContent]=useState<dbItem[]>([]);
-  function filterByTag(tag: string, data: dbItem[]): dbItem[]{
-        // If tag is "all" or empty, return all data
-      
-        if (tag === "All" || !tag) {
-            return data;
+
+const Content = ({tag}: ChildComponentProps) => {
+    const [content, setContent] = useState<dbItem[]>([]);
+    const [isShareOpen, setShareOpen] = useState(false);
+    const [shareData, setShareData] = useState({ title: '', link: '' });
+    
+    const dispatch = useDispatch();
+    const contentRefreshTrigger = useSelector((state: { modal: StoreInterface }) => state.modal.contentRefreshTrigger);
+    const allContentData = useSelector((state: { modal: StoreInterface }) => state.modal.allContentData);
+
+    // Fetch data from API when refresh trigger changes
+    useEffect(() => {
+        fetchData(tag, setContent, (allData) => {
+            dispatch(setAllContentData(allData));
+        });
+    }, [contentRefreshTrigger, dispatch, tag]);
+
+    // Filter when tag changes without API call
+    useEffect(() => {
+        if (allContentData.length > 0) {
+            const filteredContent = filterByTag(tag, allContentData);
+            setContent(filteredContent);
         }
-        
-        
-        // FIXED: Use === instead of !== to INCLUDE matching items
-        switch(tag) {
-            case "video":
-              return data.filter((c) => c.type === tag);
-            case "document":
-                return data.filter((c) => c.type === tag); // Show only document items
-            case "link":
-                return data.filter((c) => c.type === tag); // Show only link items
-            case "tweet":
-                return data.filter((c) => c.type === tag); // Show only tweet items
-            default:
-                return data;
+    }, [tag, allContentData]);
+    
+    async function handleShare(id:string,title:string) {
+     try {
+        let res= await axios.post("http://localhost:3000/api/v1/brain/share",
+            {
+                contentId:id,
+                share:true
+            },
+            {
+            headers:{
+                token:localStorage.getItem("token")
+            }    
+            }
+            
+        )
+        console.log(res);
+        if(res.data.success){
+          setShareData({ title: title, link: res.data.share_url });
+        setShareOpen(true);  
         }
+     } catch (error) {
+            console.log(error);
+     }
+       
+        
     }
- 
 
-  useEffect(()=>{
-    const res=filterByTag(tag,Data);
-    setContent(res);
-  },[tag])
+    async function handleDelete(contentId: string) {
+    // ✅ Add debugging
+    console.log('Attempting to delete:', contentId);
+    console.log('Content array before delete:', content.map(item => ({ id: item._id, title: item.title })));
+    
+    const prevContent = [...content];
+    const prevAllContent = [...allContentData];
     
 
-
-  function handleDelete(index:number){
-     setContent(prev => prev.filter((_,i) =>  i!== index))   
-    /// data call to delete will happen here with axios: _
+    const newContent = content.filter(item => String(item._id) !== String(contentId));
+    const newAllContent = allContentData.filter(item => String(item._id) !== String(contentId));
     
-  }
-  return (
-    <div className='w-full min-h-screen bg-gray-50'>
-      <Header />
-      
-      <div className='p-8'>
-        <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8'>
-          {content.map((c:dbItem, index)=>(
-      <NoteCard key ={index} title={c.title} link={c.content?c.content:c.link} tags={c.tags} createdDate={c.createdAt} contentType={mapContentType(c.type as DbContentType)}
-      onDelete={()=>handleDelete(index)} />
-    ))}
+    console.log('Content array after filter:', newContent.map(item => ({ id: item._id, title: item.title })));
+    
+    setContent(newContent);
+    dispatch(setAllContentData(newAllContent));
+
+    try {
+        const res = await axios.delete('http://localhost:3000/api/v1/content/', {
+            data: { contentId: contentId }, 
+            headers: { token: localStorage.getItem('token') }
+        });
+
+        if (res.data.success) {
+            toast.success('Content deleted successfully');
+            console.log('Delete successful on server');
+        } else {
+            throw new Error('Deletion failed');
+        }
+    } catch (err) {
+        console.error('Delete failed:', err);
+        toast.error('Something went wrong!');
+        setContent(prevContent);
+        dispatch(setAllContentData(prevAllContent));
+    }
+}
+
+
+    return (
+        <div className='w-full min-h-screen bg-gray-50'>
+            <Header />
+            
+            <div className='p-8'>
+                <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8'>
+                    {content.length === 0 ? 
+                        <p className="col-span-full text-center text-gray-400 text-lg font-medium py-16 border border-dashed border-gray-200 rounded-lg">
+                            You haven't published any content yet!
+                        </p> : 
+                        content.map((c: dbItem, index) => (
+                            <NoteCard 
+                                key={c._id || `${index}-${c.createdAt}`} 
+                                title={c.title} 
+                                link={c.content ? c.content : c.link} 
+                                tags={c.tags} 
+                                createdDate={c.createdAt} 
+                                contentType={mapContentType(c.type as DbContentType)}
+                                onDelete={() => handleDelete(String(c._id))}
+                                onShare={() => handleShare(String(c._id),c.title)} 
+                            />
+                        ))
+                    }
+                </div>
+                <SmallShareModal
+                    isOpen={isShareOpen}
+                    onClose={() => setShareOpen(false)}
+                    postTitle={shareData.title}
+                    postLink={shareData.link}
+                />
+            </div>
         </div>
-      </div>
-    </div>
-  )
+    )
 }
 
 export default Content
-
-/*
-  <NoteCard
-            title="Savukku Shankar video"
-            content="https://youtu.be/QWbrQFvBVX0?si=4PN9rMtj8rl2v1eo"
-            tags={['tutorial', 'coding']}
-            createdDate="27/09/2025"
-          />
-
-          <NoteCard
-            title="Interesting Tweet"
-            content="https://x.com/AbhyAtTech/status/1971830218211107214"
-            tags={['social', 'news']}
-            createdDate="27/09/2025"
-          />
-
-          <NoteCard
-            title="Useful Article"
-            content="https://example.com/article"
-            tags={['article', 'reading']}
-            createdDate="27/09/2025"
-          />
-
-          <NoteCard
-            title="Meeting Notes with some really long content that should expand properly"
-            content="This is a regular text note with important information that contains much more content than the previous examples. It should demonstrate how the card expands to accommodate longer content while maintaining a clean, readable layout. The card should grow in height as needed while keeping consistent spacing and alignment with other cards in the grid."
-            tags={['work', 'meeting', 'important', 'long-content']}
-            createdDate="27/09/2025"
-          />
-
-          <NoteCard
-            title="Another Long Example"
-            content="Here's another example with substantial content to show how multiple cards with different content lengths work together in the responsive grid layout."
-            tags={['example', 'demo']}
-            createdDate="27/09/2025"
-          />
-
-
-*/
-
-

@@ -4,6 +4,11 @@ import modalReducer from './index';
 
 
 
+export interface StoreInterface {
+    isShareOpen: boolean,
+    isFormOpen: boolean,
+    contentRefreshTrigger: number  // ✅ Added this line
+}
 export const store= configureStore({
     reducer:{
         modal:modalReducer

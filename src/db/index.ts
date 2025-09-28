@@ -1,6 +1,8 @@
 
 
 export interface dbItem{
+    id: number;
+    _id: number;
     type:string,
     title:string,
     content?:string,
