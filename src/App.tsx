@@ -1,5 +1,5 @@
 
-import React from 'react';
+import  { useState } from 'react';
 import {Toaster} from 'react-hot-toast'
 import './App.css';
 import { Provider } from 'react-redux';
@@ -9,7 +9,7 @@ import { store } from './store/store';
 import ShareModal from './components/ui/ShareModal';
 import FormModal from './components/ui/FormModal';
 function App() {
-
+  const [tags,setTags]=useState("All");
   return (
     <Provider store={store}>
    <Toaster toastOptions={{
@@ -28,10 +28,10 @@ function App() {
   }}/>
     <div className=' h-screen grid grid-cols-12 grid-row-4 ' >
       <div className='h-screen col-span-3'>
-        <Sidebar/>
+        <Sidebar setTag={setTags} tag={tags}/>
       </div>
       <div className=' h-screen bg-yellow-200 col-span-9 '>
-      <Content />
+      <Content tag={tags}/>
         
       </div>
 

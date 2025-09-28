@@ -2,7 +2,7 @@ import React, { type ReactElement } from 'react'
 
 interface ButtonProps {
   text: string,
-onClick?: React.MouseEventHandler<HTMLButtonElement>
+  onClick?: React.MouseEventHandler<HTMLButtonElement>
   variant: 'primary' | 'secondary',
   size: 'sm' | 'md' | 'lg',
   startIcon?: ReactElement,
@@ -10,27 +10,27 @@ onClick?: React.MouseEventHandler<HTMLButtonElement>
 }
 
 const Button = (props: ButtonProps) => {
-  // Base styles
+
   const baseStyles = 'rounded-lg cursor-pointer transition-all duration-200 font-medium border'
   
-  // Variant styles
+
   const variantStyles = {
-    primary: 'bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white border-purple-600 hover:border-purple-700 shadow-sm',
-    secondary: 'bg-gray-200 hover:bg-purple-200 active:bg-purple-200 text-purple-700 border-purple-200 hover:border-purple-300'
+    primary: 'bg-blue-500 hover:bg-blue-400 active:bg-blue-600 text-white border-blue-500 hover:border-blue-400 shadow-sm',
+    secondary: 'bg-white hover:bg-blue-50 active:bg-blue-100 text-blue-500 border-blue-200 hover:border-blue-300 shadow-sm'
   }
   
-  // Size styles
+
   const sizeStyles = {
     sm: 'px-3 py-1.5 text-sm',
     md: 'px-4 py-2 text-sm', 
     lg: 'px-6 py-3 text-base'
   }
   
-  // Icon styles
+
   const hasIcons = props.startIcon || props.endIcon
   const iconStyles = hasIcons ? 'flex items-center justify-center gap-2' : ''
   
-  // Combine all styles
+
   const finalStyles = `${baseStyles} ${variantStyles[props.variant]} ${sizeStyles[props.size]} ${iconStyles}`
   
   return (
