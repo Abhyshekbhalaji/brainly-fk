@@ -9,8 +9,8 @@ const AuthForm: React.FC = () => {
   const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault()
     if (isLogin) {
-  
-     const res= await axios.post('http://localhost:3000/api/v1/login',{username,password}).catch(error => {
+     
+     const res= await axios.post(`${import.meta.env.VITE_BACKEND_DEPLOY_URL}/api/v1/login`,{username,password}).catch(error => {
         console.error('Error submitting data:', error);
       });
         if(res?.data.success){
@@ -24,7 +24,7 @@ const AuthForm: React.FC = () => {
           toast.error("Invalid credentials")
         }
     } else {
-       const res=await axios.post('http://localhost:3000/api/v1/signup',{username,password}).catch(error => {
+       const res=await axios.post(`${import.meta.env.VITE_BACKEND_DEPLOY_URL}api/v1/signup`,{username,password}).catch(error => {
         toast.error(error);
       });
 

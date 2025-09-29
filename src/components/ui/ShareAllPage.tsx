@@ -46,7 +46,7 @@ const SharedCollectionPage: React.FC = () => {
             setLoading(true);
             console.log(hashId);
             // Note: Update this URL to match your actual API endpoint
-            const response = await axios.get(`http://localhost:3000/api/v1/share/collection`,{
+            const response = await axios.get(`${import.meta.env.VITE_BACKEND_DEPLOY_URL}api/v1/share/collection`,{
                 params:{hashId}
             });
 

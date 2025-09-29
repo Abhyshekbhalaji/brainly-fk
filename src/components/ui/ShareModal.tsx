@@ -43,7 +43,7 @@ export default function ShareModal() {
   async function handleGenerateLink() {
     setIsLoading(true);
     try {
-      let res = await axios.post("http://localhost:3000/api/v1/brain/collection/share", 
+      let res = await axios.post(`${import.meta.env.VITE_BACKEND_DEPLOY_URL}api/v1/brain/collection/share`, 
         { share: !isSharing }, 
         {
           headers: {
