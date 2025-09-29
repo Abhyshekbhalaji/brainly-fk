@@ -58,7 +58,7 @@ const Content = ({tag}: ChildComponentProps) => {
     
     async function handleShare(id:string,title:string) {
      try {
-        let res= await axios.post(`${import.meta.env.VITE_BACKEND_DEPLOY_URL}api/v1/brain/share`,
+        let res= await axios.post("http://localhost:3000/api/v1/brain/share",
             {
                 contentId:id,
                 share:true
@@ -100,7 +100,7 @@ const Content = ({tag}: ChildComponentProps) => {
     dispatch(setAllContentData(newAllContent));
 
     try {
-        const res = await axios.delete(`${import.meta.env.VITE_BACKEND_DEPLOY_URL}api/v1/content/`, {
+        const res = await axios.delete('http://localhost:3000/api/v1/content/', {
             data: { contentId: contentId }, 
             headers: { token: localStorage.getItem('token') }
         });

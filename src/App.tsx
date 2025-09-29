@@ -11,12 +11,8 @@ import ErrorPage from './components/ui/ErrorPage';
 
 import SharedContentPage from './components/ui/SharePage';
 import ShareAllPage from './components/ui/ShareAllPage';
-import dotenv from 'dotenv';
-
 function App() {
   const token =localStorage.getItem("token");
-
-   console.log(import.meta.env.VITE_BACKEND_DEPLOY_URL)
   return (
 
     <React.StrictMode>
