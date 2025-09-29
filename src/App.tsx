@@ -10,6 +10,7 @@ import Home from './components/ui/Home';
 import ErrorPage from './components/ui/ErrorPage';
 
 import SharedContentPage from './components/ui/SharePage';
+import ShareAllPage from './components/ui/ShareAllPage';
 function App() {
   const token =localStorage.getItem("token");
   return (
@@ -39,6 +40,7 @@ function App() {
  <Route path="/" element={token? <Navigate to="/home" /> :<AuthForm />}/> 
   <Route path="/home" element={token? <Home/>:<Navigate to='/'/>}/> 
   <Route path="/share/link" element={<SharedContentPage/>}/>
+  <Route path="/share/collection" element={<ShareAllPage/>}/>
   <Route path="*" element={<ErrorPage/>}/> 
   </Routes>
    
